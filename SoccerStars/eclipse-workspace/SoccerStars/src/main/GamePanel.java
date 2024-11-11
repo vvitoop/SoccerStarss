@@ -1,4 +1,3 @@
-
 package main;
 
 import javax.swing.JPanel;
@@ -25,8 +24,8 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
     private Point dragStart;
     private Point dragCurrent;
     private final int MAX_DRAG_LENGTH = 100;
-    private boolean isSpinEnabled = false; // Variable para controlar si el efecto está activado
-    private double spinAngle = 0.0;        // Ángulo para el efecto
+    private boolean isSpinEnabled = false; // Variable para controlar si el efecto estÃ¡ activado
+    private double spinAngle = 0.0;        // Ã�ngulo para el efecto
     
     private Player player1;
     private Player player2;
@@ -44,7 +43,10 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
     private boolean isRedTeamTurn = true; // true para equipo rojo, false para equipo azul
     private Player selectedPlayer;
     private BufferedImage backgroundImage;
-
+    private int fieldLeft = 65;  // Margen izquierdo del campo
+    private int fieldRight = WIDTH - 65;  // Margen derecho del campo
+    private int fieldTop = HEADER_HEIGHT;  // Margen superior del campo
+    private int fieldBottom = HEIGHT;  // Margen inferior del campo
     
     public GamePanel() {
         this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -111,7 +113,6 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
         repaint();
     }
 
- // Modificar el método updateGame
     private void updateGame() {
         // Actualizar todos los jugadores
         for(Player player : teamRed) {
@@ -121,18 +122,18 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
             player.update();
         }
         ball.update();
-        
+
         checkCollisions();
         checkGoals();
-        
+
         // Verificar si todos los objetos están quietos para permitir el siguiente turno
-        if (!canShoot && isObjectsStatic()) {
+        if (!canShoot && isAllStatic()) {
             canShoot = true;
             isRedTeamTurn = !isRedTeamTurn; // Cambiar turno
         }
     }
     
-    // Modificar el método isObjectsStatic
+    // Modificar el mÃ©todo isObjectsStatic
     private boolean isObjectsStatic() {
         boolean allStatic = ball.isStatic();
         
@@ -157,7 +158,7 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
         }
     }
     
-    // Modificar el método resetPositions
+    // Modificar el mÃ©todo resetPositions
     private void resetPositions() {
         ball.setPosition(WIDTH / 2, HEADER_HEIGHT + (FIELD_HEIGHT / 2));
         ball.setVelocity(0, 0);
@@ -165,25 +166,25 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
         canShoot = true;
     }
 
-    // Modificar el método de pintado
+    // Modificar el mÃ©todo de pintado
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         
         if (backgroundImage != null) {
-            // Definir la altura fija que tendrá la imagen
-            int imageHeight = 720;  // La imagen será de 650 px de alto (puedes ajustarlo a lo que desees)
+            // Definir la altura fija que tendrÃ¡ la imagen
+            int imageHeight = 720;  // La imagen serÃ¡ de 650 px de alto (puedes ajustarlo a lo que desees)
             
             // Obtener la altura y el ancho del panel
             int panelHeight = getHeight();    // 720 px
             int panelWidth = getWidth();      // 1280 px
             
-            // Calcular la posición Y para que la imagen se dibuje en la parte inferior
+            // Calcular la posiciÃ³n Y para que la imagen se dibuje en la parte inferior
             int yPosition = panelHeight - imageHeight;
 
-            // Asegúrate de que la imagen no quede fuera del panel
+            // AsegÃºrate de que la imagen no quede fuera del panel
             if (yPosition < 0) {
-                yPosition = 0;  // Si la imagen es más alta que el panel, ajustamos a la parte superior
+                yPosition = 0;  // Si la imagen es mÃ¡s alta que el panel, ajustamos a la parte superior
             }
 
             // Dibujar la imagen de fondo con la altura especificada
@@ -204,11 +205,11 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
         // Dibujar pelota y goles
         ball.draw(g);
         
-     // Dibujar línea de dirección si estamos arrastrando
+     // Dibujar lÃ­nea de direcciÃ³n si estamos arrastrando
         if (dragging && selectedPlayer != null && dragStart != null && dragCurrent != null) {
             Graphics2D g2d = (Graphics2D) g;
             
-            // Configurar el renderizado para líneas más suaves
+            // Configurar el renderizado para lÃ­neas mÃ¡s suaves
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2d.setStroke(new BasicStroke(2));
             
@@ -216,14 +217,14 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
             int centerX = selectedPlayer.getX() + selectedPlayer.getDiameter() / 2;
             int centerY = selectedPlayer.getY() + selectedPlayer.getDiameter() / 2;
             
-            // Calcular el vector de dirección
+            // Calcular el vector de direcciÃ³n
             double dx = dragCurrent.x - dragStart.x;
             double dy = dragCurrent.y - dragStart.y;
             
             // Calcular la magnitud
             double magnitude = Math.sqrt(dx * dx + dy * dy);
             
-            // Limitar la longitud de la línea
+            // Limitar la longitud de la lÃ­nea
             if (magnitude > MAX_DRAG_LENGTH) {
                 dx = (dx / magnitude) * MAX_DRAG_LENGTH;
                 dy = (dy / magnitude) * MAX_DRAG_LENGTH;
@@ -233,7 +234,7 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
             int endX = centerX - (int)dx;
             int endY = centerY - (int)dy;
             
-            // Dibujar línea principal
+            // Dibujar lÃ­nea principal
             g2d.setColor(Color.RED);
             g2d.drawLine(centerX, centerY, endX, endY);
            
@@ -246,7 +247,7 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
         }
     }
     
- // Modificar el método drawHeader para mostrar el turno actual
+ // Modificar el mÃ©todo drawHeader para mostrar el turno actual
     private void drawHeader(Graphics g) {
         // Fondo del header
         g.setColor(new Color(48, 48, 48));
@@ -281,9 +282,9 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
     }
 
 
- // Modificar el método de dibujo del campo
+ // Modificar el mÃ©todo de dibujo del campo
     private void drawField(Graphics g) {
-        // Dibujar círculo central
+        // Dibujar cÃ­rculo central
         g.setColor(Color.WHITE);
         int circleDiameter = 120;
         g.drawOval(WIDTH/2 - circleDiameter/2, 
@@ -291,15 +292,15 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
                    circleDiameter, 
                    circleDiameter);
         
-        // Línea central
+        // LÃ­nea central
         g.drawLine(WIDTH/2, HEADER_HEIGHT, WIDTH/2, HEIGHT);
         
-        // Áreas de los arcos (opcional)
+        // Ã�reas de los arcos (opcional)
         int areaWidth = 150;
         int areaHeight = 300;
-        // Área izquierda
+        // Ã�rea izquierda
         g.drawRect(0, HEADER_HEIGHT + (FIELD_HEIGHT - areaHeight)/2, areaWidth, areaHeight);
-        // Área derecha
+        // Ã�rea derecha
         g.drawRect(WIDTH - areaWidth, HEADER_HEIGHT + (FIELD_HEIGHT - areaHeight)/2, areaWidth, areaHeight);
     }
     
@@ -355,7 +356,7 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
         g2d.drawLine((int)end.getX(), (int)end.getY(), (int)tip2.getX(), (int)tip2.getY());
     }
 
-    // Modificar el método checkCollisions para incluir todos los jugadores
+    // Modificar el mÃ©todo checkCollisions para incluir todos los jugadores
     private void checkCollisions() {
         // Colisiones entre jugadores y pelota
         for(Player player : teamRed) {
@@ -405,7 +406,7 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
         }
     }
 
-    // Método para manejar colisiones entre jugadores
+    // MÃ©todo para manejar colisiones entre jugadores
     private void handlePlayerCollision(Player p1, Player p2) {
         // Calcular centros
         double p1CenterX = p1.getX() + p1.getDiameter() / 2.0;
@@ -413,14 +414,14 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
         double p2CenterX = p2.getX() + p2.getDiameter() / 2.0;
         double p2CenterY = p2.getY() + p2.getDiameter() / 2.0;
 
-        // Calcular vector de colisión
+        // Calcular vector de colisiÃ³n
         double dx = p2CenterX - p1CenterX;
         double dy = p2CenterY - p1CenterY;
         double distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance == 0) return; // Evitar división por cero
+        if (distance == 0) return; // Evitar divisiÃ³n por cero
 
-        // Normalizar el vector de colisión
+        // Normalizar el vector de colisiÃ³n
         dx /= distance;
         dy /= distance;
 
@@ -461,72 +462,142 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
         }
     }
     private void checkWallCollisions() {
-        // Colisiones para la pelota
-        if (ball.getY() < HEADER_HEIGHT) {
-            ball.setPosition(ball.getX(), HEADER_HEIGHT);
-            ball.setVelocity(ball.getVelX(), -ball.getVelY() * 0.7);
-        }
-        if (ball.getY() + ball.getDiameter() > HEIGHT) {
-            ball.setPosition(ball.getX(), HEIGHT - ball.getDiameter());
-            ball.setVelocity(ball.getVelX(), -ball.getVelY() * 0.7);
-        }
-        if (ball.getX() < 0) {
-            ball.setPosition(0, ball.getY());
-            ball.setVelocity(-ball.getVelX() * 0.7, ball.getVelY());
-        }
-        if (ball.getX() + ball.getDiameter() > WIDTH) {
-            ball.setPosition(WIDTH - ball.getDiameter(), ball.getY());
-            ball.setVelocity(-ball.getVelX() * 0.7, ball.getVelY());
-        }
+    	// Definir los límites del campo
+        int fieldLeft = 65;  // Margen izquierdo del campo
+        int fieldRight = WIDTH - 65;  // Margen derecho del campo
+        int fieldTop = HEADER_HEIGHT;  // Margen superior del campo
+        int fieldBottom = HEIGHT;  // Margen inferior del campo
 
+        // Colisiones para la pelota con las líneas del campo
+        if (ball.getY() < fieldTop) {
+            ball.setPosition(ball.getX(), fieldTop);
+            ball.setVelocity(ball.getVelX(), -ball.getVelY() * 0.7);
+        }
+        if (ball.getY() + ball.getDiameter() > fieldBottom) {
+            ball.setPosition(ball.getX(), fieldBottom - ball.getDiameter());
+            ball.setVelocity(ball.getVelX(), -ball.getVelY() * 0.7);
+        }
+        if (ball.getX() < fieldLeft) {
+            // Verificar si la pelota está dentro del arco
+            if (ball.getY() >= HEADER_HEIGHT + (FIELD_HEIGHT / 2) - 60 &&
+                ball.getY() <= HEADER_HEIGHT + (FIELD_HEIGHT / 2) + 60) {
+                // Gol
+                handleGoal(true);
+            } else {
+                // Saque de esquina
+                handleCornerKick(true);
+            }
+        }
+        if (ball.getX() + ball.getDiameter() > fieldRight) {
+            // Verificar si la pelota está dentro del arco
+            if (ball.getY() >= HEADER_HEIGHT + (FIELD_HEIGHT / 2) - 60 &&
+                ball.getY() <= HEADER_HEIGHT + (FIELD_HEIGHT / 2) + 60) {
+                // Gol
+                handleGoal(false);
+            } else {
+                // Saque de esquina
+                handleCornerKick(false);
+            }
+        }
         // Colisiones para el equipo rojo
         for (Player player : teamRed) {
-            if (player.getY() < HEADER_HEIGHT) {
-                player.setPosition(player.getX(), HEADER_HEIGHT);
+            if (player.getY() < fieldTop) {
+                player.setPosition(player.getX(), fieldTop);
                 player.setVelocity(player.getVelX(), -player.getVelY() * 0.7);
             }
-            if (player.getY() + player.getDiameter() > HEIGHT) {
-                player.setPosition(player.getX(), HEIGHT - player.getDiameter());
+            if (player.getY() + player.getDiameter() > fieldBottom) {
+                player.setPosition(player.getX(), fieldBottom - player.getDiameter());
                 player.setVelocity(player.getVelX(), -player.getVelY() * 0.7);
             }
-            if (player.getX() < 0) {
-                player.setPosition(0, player.getY());
+            if (player.getX() < fieldLeft) {
+                player.setPosition(fieldLeft, player.getY());
                 player.setVelocity(-player.getVelX() * 0.7, player.getVelY());
             }
-            if (player.getX() + player.getDiameter() > WIDTH) {
-                player.setPosition(WIDTH - player.getDiameter(), player.getY());
+            if (player.getX() + player.getDiameter() > fieldRight) {
+                player.setPosition(fieldRight - player.getDiameter(), player.getY());
                 player.setVelocity(-player.getVelX() * 0.7, player.getVelY());
             }
         }
 
-        // Colisiones para el equipo azul
+        // Colisiones para el equipo azul (mismo código que para el equipo rojo)
         for (Player player : teamBlue) {
-            if (player.getY() < HEADER_HEIGHT) {
-                player.setPosition(player.getX(), HEADER_HEIGHT);
+            if (player.getY() < fieldTop) {
+                player.setPosition(player.getX(), fieldTop);
                 player.setVelocity(player.getVelX(), -player.getVelY() * 0.7);
             }
-            if (player.getY() + player.getDiameter() > HEIGHT) {
-                player.setPosition(player.getX(), HEIGHT - player.getDiameter());
+            if (player.getY() + player.getDiameter() > fieldBottom) {
+                player.setPosition(player.getX(), fieldBottom - player.getDiameter());
                 player.setVelocity(player.getVelX(), -player.getVelY() * 0.7);
             }
-            if (player.getX() < 0) {
-                player.setPosition(0, player.getY());
+            if (player.getX() < fieldLeft) {
+                player.setPosition(fieldLeft, player.getY());
                 player.setVelocity(-player.getVelX() * 0.7, player.getVelY());
             }
-            if (player.getX() + player.getDiameter() > WIDTH) {
-                player.setPosition(WIDTH - player.getDiameter(), player.getY());
+            if (player.getX() + player.getDiameter() > fieldRight) {
+                player.setPosition(fieldRight - player.getDiameter(), player.getY());
                 player.setVelocity(-player.getVelX() * 0.7, player.getVelY());
             }
         }
     }
     
- // Método para verificar si es válido seleccionar un jugador
+    private void handleGoal(boolean isLeftGoal) {
+        // Incrementar el marcador del equipo correspondiente
+        if (isLeftGoal) {
+            player2Score++;
+        } else {
+            player1Score++;
+        }
+
+        // Reiniciar la posición de la pelota y los jugadores
+        resetPositions();
+    }
+
+    private void handleCornerKick(boolean isLeftCorner) {
+        // Detener el juego hasta que se realice el saque de esquina
+        canShoot = false;
+
+        // Determinar el equipo que realizará el saque de esquina
+        ArrayList<Player> cornerKickingTeam = isLeftCorner ? teamRed : teamBlue;
+
+        // Colocar la pelota en la esquina correspondiente
+        if (isLeftCorner) {
+            ball.setPosition(fieldLeft + 10, fieldTop + 10);
+        } else {
+            ball.setPosition(fieldRight - 10 - ball.getDiameter(), fieldTop + 10);
+        }
+
+        // Detener la pelota
+        ball.setVelocity(0, 0);
+
+        // Colocar a un jugador del equipo que realiza el saque de esquina cerca de la pelota
+        for (Player player : cornerKickingTeam) {
+            if (player.isNearPosition(ball.getX(), ball.getY(), 50)) {
+                selectedPlayer = player;
+                player.setPosition(ball.getX() - player.getDiameter() / 2, ball.getY() - player.getDiameter() / 2);
+                break;
+            }
+        }
+
+        // Esperar a que el jugador seleccionado tome el control de la pelota
+        Timer cornerKickTimer = new Timer(3000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Permitir que el juego continúe
+                canShoot = true;
+                selectedPlayer = null;
+                ((Timer)e.getSource()).stop();
+            }
+        });
+        cornerKickTimer.start();
+    }
+    
+ // MÃ©todo para verificar si es vÃ¡lido seleccionar un jugador
     private boolean isValidPlayerSelection(Point clickPoint) {
         ArrayList<Player> currentTeam = isRedTeamTurn ? teamRed : teamBlue;
         
         for(Player player : currentTeam) {
             if(player.contains(clickPoint)) {
-                // Verificar si el jugador está en movimiento
+                // Verificar si el jugador estÃ¡ en movimiento
                 if(!player.isStatic()) {
                     return false;
                 }
@@ -537,7 +608,7 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
     }
 
     
- // Método para verificar si todos los jugadores y la pelota están estáticos
+ // MÃ©todo para verificar si todos los jugadores y la pelota estÃ¡n estÃ¡ticos
     private boolean isAllStatic() {
         if (!ball.isStatic()) {
             return false;
@@ -560,7 +631,7 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
     
     @Override
     public void mousePressed(MouseEvent e) {
-        // Solo permitir seleccionar si todo está estático
+        // Solo permitir seleccionar si todo estÃ¡ estÃ¡tico
         if (!canShoot || !isAllStatic()) {
             return;
         }
@@ -589,7 +660,7 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
             double dx = dragCurrent.x - dragStart.x;
             double dy = dragCurrent.y - dragStart.y;
 
-            // Limitar la fuerza máxima del disparo
+            // Limitar la fuerza mÃ¡xima del disparo
             double magnitude = Math.sqrt(dx * dx + dy * dy);
             if (magnitude > MAX_DRAG_LENGTH) {
                 dx = (dx / magnitude) * MAX_DRAG_LENGTH;
@@ -605,7 +676,7 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
             dragCurrent = null;
             dragging = false;
 
-            // Esperar a que todo esté estático antes de cambiar el turno
+            // Esperar a que todo estÃ© estÃ¡tico antes de cambiar el turno
             Timer checkStaticTimer = new Timer(100, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -626,7 +697,7 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
         if (dragging && selectedPlayer != null) {
             dragCurrent = e.getPoint();
             
-            // Calcular ángulo para el efecto
+            // Calcular Ã¡ngulo para el efecto
             if (isSpinEnabled && dragStart != null) {
                 double dx = e.getX() - dragStart.x;
                 double dy = e.getY() - dragStart.y;
@@ -639,12 +710,12 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
 
     
 
-    // Método para activar/desactivar el modo de efecto
+    // MÃ©todo para activar/desactivar el modo de efecto
     public void toggleSpinMode() {
         isSpinEnabled = !isSpinEnabled;
     }
 
-    // Métodos adicionales del MouseListener y MouseMotionListener
+    // MÃ©todos adicionales del MouseListener y MouseMotionListener
     @Override
     public void mouseClicked(MouseEvent e) {}
     @Override

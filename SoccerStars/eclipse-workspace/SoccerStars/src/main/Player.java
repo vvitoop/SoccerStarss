@@ -102,6 +102,11 @@ public class Player {
     public boolean contains(Point p) {
         return new Rectangle(x, y, DIAMETER, DIAMETER).contains(p);
     }
+    
+    public boolean isNearPosition(double x, double y, double distance) {
+        double distanceSquared = (this.getX() - x) * (this.getX() - x) + (this.getY() - y) * (this.getY() - y);
+        return distanceSquared <= distance * distance;
+    }
 
     // Método para verificar colisión con la pelota
     public boolean collidesWith(Ball ball) {
