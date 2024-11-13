@@ -46,8 +46,8 @@ private double x, y;
         velY *= FRICTION;
 
         // Detener cuando la velocidad es muy baja
-        if (Math.abs(velX) < 0.1) velX = 0;
-        if (Math.abs(velY) < 0.1) velY = 0;
+        if (Math.abs(velX) < 1.5) velX = 0;
+        if (Math.abs(velY) < 1.5) velY = 0;
     }
    
     public void addSpin(double spinAmount) {

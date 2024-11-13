@@ -462,7 +462,7 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
         }
     }
     private void checkWallCollisions() {
-    	// Definir los límites del campo
+        // Definir los límites del campo
         int fieldLeft = 65;  // Margen izquierdo del campo
         int fieldRight = WIDTH - 65;  // Margen derecho del campo
         int fieldTop = HEADER_HEIGHT;  // Margen superior del campo
@@ -484,8 +484,8 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
                 // Gol
                 handleGoal(true);
             } else {
-                // Saque de esquina
-                handleCornerKick(true);
+                ball.setPosition(fieldLeft, ball.getY());
+                ball.setVelocity(-ball.getVelX() * 0.7, ball.getVelY());
             }
         }
         if (ball.getX() + ball.getDiameter() > fieldRight) {
@@ -495,10 +495,11 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
                 // Gol
                 handleGoal(false);
             } else {
-                // Saque de esquina
-                handleCornerKick(false);
+                ball.setPosition(fieldRight - ball.getDiameter(), ball.getY());
+                ball.setVelocity(-ball.getVelX() * 0.7, ball.getVelY());
             }
         }
+
         // Colisiones para el equipo rojo
         for (Player player : teamRed) {
             if (player.getY() < fieldTop) {
@@ -550,45 +551,6 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
 
         // Reiniciar la posición de la pelota y los jugadores
         resetPositions();
-    }
-
-    private void handleCornerKick(boolean isLeftCorner) {
-        // Detener el juego hasta que se realice el saque de esquina
-        canShoot = false;
-
-        // Determinar el equipo que realizará el saque de esquina
-        ArrayList<Player> cornerKickingTeam = isLeftCorner ? teamRed : teamBlue;
-
-        // Colocar la pelota en la esquina correspondiente
-        if (isLeftCorner) {
-            ball.setPosition(fieldLeft + 10, fieldTop + 10);
-        } else {
-            ball.setPosition(fieldRight - 10 - ball.getDiameter(), fieldTop + 10);
-        }
-
-        // Detener la pelota
-        ball.setVelocity(0, 0);
-
-        // Colocar a un jugador del equipo que realiza el saque de esquina cerca de la pelota
-        for (Player player : cornerKickingTeam) {
-            if (player.isNearPosition(ball.getX(), ball.getY(), 50)) {
-                selectedPlayer = player;
-                player.setPosition(ball.getX() - player.getDiameter() / 2, ball.getY() - player.getDiameter() / 2);
-                break;
-            }
-        }
-
-        // Esperar a que el jugador seleccionado tome el control de la pelota
-        Timer cornerKickTimer = new Timer(3000, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Permitir que el juego continúe
-                canShoot = true;
-                selectedPlayer = null;
-                ((Timer)e.getSource()).stop();
-            }
-        });
-        cornerKickTimer.start();
     }
     
  // MÃ©todo para verificar si es vÃ¡lido seleccionar un jugador
@@ -660,11 +622,22 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
             double dx = dragCurrent.x - dragStart.x;
             double dy = dragCurrent.y - dragStart.y;
 
-            // Limitar la fuerza mÃ¡xima del disparo
+            // Limitar la fuerza máxima del disparo
             double magnitude = Math.sqrt(dx * dx + dy * dy);
             if (magnitude > MAX_DRAG_LENGTH) {
                 dx = (dx / magnitude) * MAX_DRAG_LENGTH;
                 dy = (dy / magnitude) * MAX_DRAG_LENGTH;
+            }
+
+            // Verificar si el tiro se ha cancelado
+            if (magnitude < 5) { // Consideramos que el tiro se ha cancelado si la magnitud es menor a 5
+                // Resetear el estado del arrastre
+                selectedPlayer = null;
+                dragStart = null;
+                dragCurrent = null;
+                dragging = false;
+                repaint();
+                return;
             }
 
             // Aplicar el disparo
@@ -676,7 +649,7 @@ public class GamePanel extends JPanel implements ActionListener, MouseListener, 
             dragCurrent = null;
             dragging = false;
 
-            // Esperar a que todo estÃ© estÃ¡tico antes de cambiar el turno
+            // Esperar a que todo esté estático antes de cambiar el turno
             Timer checkStaticTimer = new Timer(100, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
